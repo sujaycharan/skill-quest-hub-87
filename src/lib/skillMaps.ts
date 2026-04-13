@@ -1,5 +1,6 @@
 // Predefined skill maps for different career goals
-// Later this will be replaced by ML model recommendations
+// The /api/recommend endpoint wraps these with mock ML logic.
+// Later, replace the mock with your real ML model.
 
 export interface SkillMapTopic {
   title: string;
@@ -77,6 +78,38 @@ export const skillSuggestions = [
   "Java", "C++", "Swift", "Kotlin", "R",
 ];
 
+/**
+ * Fetch a personalised career path from the ML API.
+ * Falls back to local careerPaths if the API is unreachable.
+ */
+export async function fetchRecommendation(
+  careerGoal: string,
+  currentSkills: string[],
+  learningSpeed: string,
+  hoursPerDay: number
+): Promise<CareerPath> {
+  try {
+    const res = await fetch("/api/recommend", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        career_goal: careerGoal,
+        current_skills: currentSkills,
+        learning_speed: learningSpeed,
+        hours_per_day: hoursPerDay,
+      }),
+    });
+
+    if (!res.ok) throw new Error("API request failed");
+    return (await res.json()) as CareerPath;
+  } catch (err) {
+    console.warn("ML API unavailable, falling back to local data:", err);
+    const fallback = careerPaths[careerGoal];
+    if (!fallback) throw new Error(`Unknown career goal: ${careerGoal}`);
+    return fallback;
+  }
+}
+
 // Generate timetable based on topics and user preferences
 export function generateTimetable(
   topics: SkillMapTopic[],
@@ -85,14 +118,14 @@ export function generateTimetable(
 ): Array<{ day: string; timeSlot: string; taskTitle: string; durationHours: number; topicIndex: number }> {
   const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
   const timePrefix = preferredTime === "Morning" ? "9:00 AM" : "6:00 PM";
-  
+
   const entries: Array<{ day: string; timeSlot: string; taskTitle: string; durationHours: number; topicIndex: number }> = [];
   let topicIndex = 0;
   let remainingHoursForTopic = topics[0]?.estimatedHours ?? 0;
 
   for (const day of days) {
     if (topicIndex >= topics.length) break;
-    
+
     let dayHours = hoursPerDay;
     while (dayHours > 0 && topicIndex < topics.length) {
       const hours = Math.min(dayHours, remainingHoursForTopic);
@@ -118,7 +151,7 @@ export function generateTimetable(
 // Determine which badges a user has earned
 export function checkBadges(completedCount: number, totalCount: number): Array<{ name: string; icon: string; description: string }> {
   const badges: Array<{ name: string; icon: string; description: string }> = [];
-  
+
   if (completedCount >= 1) {
     badges.push({ name: "First Step", icon: "🚀", description: "Completed your first topic!" });
   }
