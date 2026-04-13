@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Header } from "@/components/Header";
 import { Sparkles, Sun, Moon } from "lucide-react";
-import { careerPaths, skillSuggestions } from "@/lib/skillMaps";
+import { careerPaths, skillSuggestions, fetchRecommendation } from "@/lib/skillMaps";
 
 export const Route = createFileRoute("/onboarding")({
   head: () => ({
@@ -83,20 +83,23 @@ function OnboardingPage() {
 
       if (profileError) throw profileError;
 
-      // Create learning path from skill map
-      const pathData = careerPaths[careerGoal];
-      if (pathData) {
-        // Filter out topics the user already knows
-        const topicsToLearn = pathData.topics.filter(
-          (t) => !skills.some((s) => t.title.toLowerCase().includes(s.toLowerCase()))
-        );
+      // Call ML API for personalised recommendations
+      const recommendation = await fetchRecommendation(
+        careerGoal,
+        skills,
+        learningSpeed,
+        Number(hoursPerDay)
+      );
+
+      if (recommendation && recommendation.topics.length > 0) {
+        const topicsToLearn = recommendation.topics;
 
         const { data: lp, error: lpError } = await supabase
           .from("learning_paths")
           .insert({
             user_id: user.id,
             title: `${careerGoal} Path`,
-            description: pathData.description,
+            description: recommendation.description,
           })
           .select()
           .single();
