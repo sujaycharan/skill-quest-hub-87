@@ -69,6 +69,9 @@ function HomePage() {
               </Link>
             </div>
           </div>
+          <div className="mt-16 flex justify-center animate-float">
+            <img src={heroImage} alt="Learning path illustration" width={1280} height={720} className="max-w-2xl w-full rounded-2xl shadow-2xl opacity-90" />
+          </div>
         </div>
       </section>
 
