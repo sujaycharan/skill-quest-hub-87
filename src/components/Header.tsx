@@ -1,10 +1,13 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useLocation } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { BookOpen, LogOut } from "lucide-react";
+import { BookOpen, LogOut, LayoutDashboard } from "lucide-react";
 
 export function Header() {
   const { user, loading, signOut } = useAuth();
+  const location = useLocation();
+
+  const isActive = (path: string) => location.pathname === path;
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
@@ -19,8 +22,11 @@ export function Header() {
         <div className="flex items-center gap-3">
           {loading ? null : user ? (
             <>
-              <Link to="/onboarding">
-                <Button variant="ghost" size="sm">Dashboard</Button>
+              <Link to="/dashboard">
+                <Button variant={isActive("/dashboard") ? "default" : "ghost"} size="sm">
+                  <LayoutDashboard className="h-4 w-4" />
+                  Dashboard
+                </Button>
               </Link>
               <Button variant="outline" size="sm" onClick={() => signOut()}>
                 <LogOut className="h-4 w-4" />
