@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Header } from "@/components/Header";
 import { Sparkles, Sun, Moon } from "lucide-react";
-import { careerPaths, skillSuggestions } from "@/lib/skillMaps";
+import { careerPaths, skillSuggestions, fetchRecommendation } from "@/lib/skillMaps";
 
 export const Route = createFileRoute("/onboarding")({
   head: () => ({
