@@ -14,7 +14,196 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      learning_paths: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          available_hours_per_day: number | null
+          career_goal: string | null
+          created_at: string
+          current_skills: string[] | null
+          display_name: string | null
+          id: string
+          learning_speed: string | null
+          onboarding_completed: boolean | null
+          preferred_study_time: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          available_hours_per_day?: number | null
+          career_goal?: string | null
+          created_at?: string
+          current_skills?: string[] | null
+          display_name?: string | null
+          id?: string
+          learning_speed?: string | null
+          onboarding_completed?: boolean | null
+          preferred_study_time?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          available_hours_per_day?: number | null
+          career_goal?: string | null
+          created_at?: string
+          current_skills?: string[] | null
+          display_name?: string | null
+          id?: string
+          learning_speed?: string | null
+          onboarding_completed?: boolean | null
+          preferred_study_time?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      rewards: {
+        Row: {
+          badge_icon: string
+          badge_name: string
+          description: string | null
+          earned_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          badge_icon?: string
+          badge_name: string
+          description?: string | null
+          earned_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          badge_icon?: string
+          badge_name?: string
+          description?: string | null
+          earned_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      timetable_entries: {
+        Row: {
+          created_at: string
+          day_of_week: string
+          duration_hours: number
+          id: string
+          is_completed: boolean | null
+          task_title: string
+          time_slot: string
+          topic_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          day_of_week: string
+          duration_hours?: number
+          id?: string
+          is_completed?: boolean | null
+          task_title: string
+          time_slot: string
+          topic_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          day_of_week?: string
+          duration_hours?: number
+          id?: string
+          is_completed?: boolean | null
+          task_title?: string
+          time_slot?: string
+          topic_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "timetable_entries_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      topics: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          description: string | null
+          estimated_hours: number | null
+          id: string
+          is_completed: boolean | null
+          learning_path_id: string
+          sort_order: number
+          title: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          estimated_hours?: number | null
+          id?: string
+          is_completed?: boolean | null
+          learning_path_id: string
+          sort_order?: number
+          title: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          estimated_hours?: number | null
+          id?: string
+          is_completed?: boolean | null
+          learning_path_id?: string
+          sort_order?: number
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "topics_learning_path_id_fkey"
+            columns: ["learning_path_id"]
+            isOneToOne: false
+            referencedRelation: "learning_paths"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

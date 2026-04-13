@@ -30,7 +30,7 @@ function LoginPage() {
     setLoading(true);
     try {
       await signIn(email, password);
-      navigate({ to: "/onboarding" });
+      navigate({ to: "/dashboard" });
     } catch (err: any) {
       setError(err.message || "Login failed");
     } finally {
