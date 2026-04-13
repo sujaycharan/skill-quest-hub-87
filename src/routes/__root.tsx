@@ -31,28 +31,14 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Learning Platform" },
-      { name: "description", content: "A SMART EDUCATION FRAMEWORK
-FOR ADAPTIVE LEARNING PATH
-CREATION AND PROGRESS
-MONITORING USING MACHINE
-INTELLIGENCE" },
+      { title: "Lovable App" },
+      { name: "description", content: "Lovable Generated Project" },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Learning Platform" },
-      { property: "og:description", content: "A SMART EDUCATION FRAMEWORK
-FOR ADAPTIVE LEARNING PATH
-CREATION AND PROGRESS
-MONITORING USING MACHINE
-INTELLIGENCE" },
+      { property: "og:title", content: "Lovable App" },
+      { property: "og:description", content: "Lovable Generated Project" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
-      { name: "twitter:title", content: "Learning Platform" },
-      { name: "twitter:description", content: "A SMART EDUCATION FRAMEWORK
-FOR ADAPTIVE LEARNING PATH
-CREATION AND PROGRESS
-MONITORING USING MACHINE
-INTELLIGENCE" },
     ],
     links: [
       {
