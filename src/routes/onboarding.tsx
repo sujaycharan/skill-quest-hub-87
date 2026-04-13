@@ -99,7 +99,7 @@ function OnboardingPage() {
           .insert({
             user_id: user.id,
             title: `${careerGoal} Path`,
-            description: pathData.description,
+            description: recommendation.description,
           })
           .select()
           .single();
