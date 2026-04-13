@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { BookOpen, Target, Zap, Users } from "lucide-react";
 import { Header } from "@/components/Header";
+import heroImage from "@/assets/hero-illustration.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
