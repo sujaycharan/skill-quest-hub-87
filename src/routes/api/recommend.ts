@@ -48,7 +48,8 @@ export const Route = createFileRoute("/api/recommend")({
             ))
             .map((t) => ({
               ...t,
-              estimatedHours: Math.round(t.estimatedHours * speedMultiplier),
+              estimatedHours: Math.max(1, Math.round(t.estimatedHours * speedMultiplier)),
+              subtopics: t.subtopics ?? [],
             }));
 
           const recommendation: CareerPath = {
