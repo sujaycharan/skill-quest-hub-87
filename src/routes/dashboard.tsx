@@ -304,9 +304,32 @@ function DashboardPage() {
                       {topic.title}
                     </h3>
                   </div>
-                  {topic.description && (
-                    <p className="mt-1 text-sm text-muted-foreground">{topic.description}</p>
-                  )}
+                  {topic.description && (() => {
+                    const [mainDesc, subBlock] = topic.description.split("\n\nTopics to learn:");
+                    const subs = subBlock
+                      ? subBlock.split("\n•").map((s) => s.trim()).filter(Boolean)
+                      : [];
+                    return (
+                      <>
+                        <p className="mt-1 text-sm text-muted-foreground">{mainDesc}</p>
+                        {subs.length > 0 && (
+                          <div className="mt-3 rounded-xl bg-muted/50 p-3">
+                            <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                              Topics to learn
+                            </div>
+                            <ul className="grid gap-1.5 sm:grid-cols-2">
+                              {subs.map((s, i) => (
+                                <li key={i} className="flex items-start gap-2 text-sm text-card-foreground">
+                                  <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-primary" />
+                                  <span>{s}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
                   <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
                     <Clock className="h-3 w-3" />
                     {topic.estimated_hours}h estimated

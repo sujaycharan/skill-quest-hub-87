@@ -108,14 +108,19 @@ function OnboardingPage() {
 
         // Insert topics
         if (lp && topicsToLearn.length > 0) {
-          const topicRows = topicsToLearn.map((t, i) => ({
-            learning_path_id: lp.id,
-            user_id: user.id,
-            title: t.title,
-            description: t.description,
-            sort_order: i,
-            estimated_hours: t.estimatedHours,
-          }));
+          const topicRows = topicsToLearn.map((t, i) => {
+            const subBlock = t.subtopics && t.subtopics.length > 0
+              ? `\n\nTopics to learn:\n• ${t.subtopics.join("\n• ")}`
+              : "";
+            return {
+              learning_path_id: lp.id,
+              user_id: user.id,
+              title: t.title,
+              description: (t.description ?? "") + subBlock,
+              sort_order: i,
+              estimated_hours: t.estimatedHours,
+            };
+          });
 
           const { error: topicsError } = await supabase.from("topics").insert(topicRows);
           if (topicsError) throw topicsError;
