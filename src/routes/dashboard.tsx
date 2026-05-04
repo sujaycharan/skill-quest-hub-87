@@ -102,7 +102,7 @@ function DashboardPage() {
         .select("*")
         .eq("learning_path_id", pathRes.data.id)
         .order("sort_order");
-      if (topicsRes.data) setTopics(topicsRes.data);
+      if (topicsRes.data) setTopics(topicsRes.data as Topic[]);
     }
 
     if (timetableRes.data) setTimetable(timetableRes.data);
