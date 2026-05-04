@@ -171,7 +171,8 @@ function DashboardPage() {
     );
   }
 
-  const completedCount = topics.filter((t) => t.is_completed).length;
+  const completedCount = topics.filter((t) => t.status === "completed").length;
+  const inProgressCount = topics.filter((t) => t.status === "in_progress").length;
   const totalCount = topics.length;
   const progressPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
   const totalHours = topics.reduce((sum, t) => sum + (t.estimated_hours ?? 0), 0);
