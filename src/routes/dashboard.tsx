@@ -109,22 +109,27 @@ function DashboardPage() {
     setLoading(false);
   };
 
-  const toggleTopic = async (topicId: string, currentState: boolean | null) => {
-    const newState = !currentState;
+  const updateTopicStatus = async (topicId: string, newStatus: TopicStatus) => {
+    const isCompleted = newStatus === "completed";
     await supabase
       .from("topics")
       .update({
-        is_completed: newState,
-        completed_at: newState ? new Date().toISOString() : null,
+        status: newStatus,
+        is_completed: isCompleted,
+        completed_at: isCompleted ? new Date().toISOString() : null,
       })
       .eq("id", topicId);
 
     setTopics((prev) =>
-      prev.map((t) => (t.id === topicId ? { ...t, is_completed: newState } : t))
+      prev.map((t) =>
+        t.id === topicId ? { ...t, status: newStatus, is_completed: isCompleted } : t
+      )
     );
 
-    // Check and award badges
-    const completed = topics.filter((t) => (t.id === topicId ? newState : t.is_completed)).length;
+    // Award badges based on completed count
+    const completed = topics.filter((t) =>
+      t.id === topicId ? isCompleted : t.is_completed
+    ).length;
     const newBadges = checkBadges(completed, topics.length);
 
     for (const badge of newBadges) {
