@@ -8,8 +8,10 @@ import { Progress } from "@/components/ui/progress";
 import { checkBadges } from "@/lib/skillMaps";
 import {
   BookOpen, CheckCircle2, Circle, Calendar, Trophy, Target,
-  Clock, TrendingUp, Sparkles,
+  Clock, TrendingUp, Sparkles, PlayCircle,
 } from "lucide-react";
+
+type TopicStatus = "not_started" | "in_progress" | "completed";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
