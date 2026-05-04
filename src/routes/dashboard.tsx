@@ -126,29 +126,8 @@ function DashboardPage() {
       )
     );
 
-    // Award badges based on completed count
-    const completed = topics.filter((t) =>
-      t.id === topicId ? isCompleted : t.is_completed
-    ).length;
-    const newBadges = checkBadges(completed, topics.length);
-
-    for (const badge of newBadges) {
-      const { data: existing } = await supabase
-        .from("rewards")
-        .select("id")
-        .eq("user_id", user!.id)
-        .eq("badge_name", badge.name)
-        .limit(1);
-
-      if (!existing || existing.length === 0) {
-        await supabase.from("rewards").insert({
-          user_id: user!.id,
-          badge_name: badge.name,
-          badge_icon: badge.icon,
-          description: badge.description,
-        });
-      }
-    }
+    // Award badges via secure server-side function (validates against actual progress)
+    await supabase.rpc("award_earned_badges" as never);
   };
 
   const toggleTimetableEntry = async (entryId: string, currentState: boolean | null) => {
