@@ -167,6 +167,7 @@ export type Database = {
           is_completed: boolean | null
           learning_path_id: string
           sort_order: number
+          status: string
           title: string
           user_id: string
         }
@@ -179,6 +180,7 @@ export type Database = {
           is_completed?: boolean | null
           learning_path_id: string
           sort_order?: number
+          status?: string
           title: string
           user_id: string
         }
@@ -191,6 +193,7 @@ export type Database = {
           is_completed?: boolean | null
           learning_path_id?: string
           sort_order?: number
+          status?: string
           title?: string
           user_id?: string
         }
