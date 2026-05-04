@@ -30,6 +30,7 @@ interface Topic {
   sort_order: number;
   estimated_hours: number | null;
   is_completed: boolean | null;
+  status: TopicStatus;
 }
 
 interface TimetableEntry {
