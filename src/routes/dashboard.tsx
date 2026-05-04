@@ -350,20 +350,32 @@ function DashboardPage() {
                         {topic.estimated_hours}h estimated
                       </div>
                       <div className="flex gap-1.5">
-                        {(["not_started", "in_progress", "completed"] as TopicStatus[]).map((s) => (
-                          <button
-                            key={s}
-                            onClick={() => updateTopicStatus(topic.id, s)}
-                            disabled={status === s}
-                            className={`rounded-lg px-2.5 py-1 text-xs font-medium transition-all ${
-                              status === s
-                                ? "bg-primary text-primary-foreground"
-                                : "bg-muted text-muted-foreground hover:bg-muted/70"
-                            }`}
+                        {status !== "completed" && status !== "in_progress" && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => updateTopicStatus(topic.id, "in_progress")}
                           >
-                            {s === "not_started" ? "To do" : s === "in_progress" ? "In progress" : "Done"}
-                          </button>
-                        ))}
+                            Start
+                          </Button>
+                        )}
+                        {status !== "completed" ? (
+                          <Button
+                            size="sm"
+                            onClick={() => updateTopicStatus(topic.id, "completed")}
+                          >
+                            <CheckCircle2 className="h-4 w-4" />
+                            Mark as Complete
+                          </Button>
+                        ) : (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => updateTopicStatus(topic.id, "not_started")}
+                          >
+                            Completed ✓ (Undo)
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </div>
