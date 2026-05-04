@@ -212,7 +212,23 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      award_earned_badges: {
+        Args: never
+        Returns: {
+          badge_icon: string
+          badge_name: string
+          description: string | null
+          earned_at: string
+          id: string
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "rewards"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
     }
     Enums: {
       [_ in never]: never
