@@ -285,67 +285,92 @@ function DashboardPage() {
         {/* Learning Path Tab */}
         {activeTab === "path" && (
           <div className="space-y-3 animate-fade-in">
-            {topics.map((topic, index) => (
+            {topics.map((topic, index) => {
+              const status = topic.status;
+              const statusConfig = {
+                not_started: { label: "Not started", icon: Circle, color: "text-muted-foreground", bg: "bg-muted" },
+                in_progress: { label: "In progress", icon: PlayCircle, color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-500/10" },
+                completed: { label: "Completed", icon: CheckCircle2, color: "text-primary", bg: "bg-primary/10" },
+              }[status];
+              const StatusIcon = statusConfig.icon;
+              return (
               <div
                 key={topic.id}
-                className={`group flex items-start gap-4 rounded-2xl border p-5 transition-all ${
-                  topic.is_completed
+                className={`group rounded-2xl border p-5 transition-all ${
+                  status === "completed"
                     ? "border-primary/30 bg-primary/5"
+                    : status === "in_progress"
+                    ? "border-amber-500/30 bg-amber-500/5"
                     : "border-border bg-card hover:border-primary/30"
                 }`}
               >
-                <button
-                  onClick={() => toggleTopic(topic.id, topic.is_completed)}
-                  className="mt-0.5 flex-shrink-0"
-                >
-                  {topic.is_completed ? (
-                    <CheckCircle2 className="h-6 w-6 text-primary" />
-                  ) : (
-                    <Circle className="h-6 w-6 text-muted-foreground group-hover:text-primary/50" />
-                  )}
-                </button>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground">
-                      {index + 1}
-                    </span>
-                    <h3 className={`font-semibold ${topic.is_completed ? "text-primary line-through" : "text-card-foreground"}`}>
-                      {topic.title}
-                    </h3>
-                  </div>
-                  {topic.description && (() => {
-                    const [mainDesc, subBlock] = topic.description.split("\n\nTopics to learn:");
-                    const subs = subBlock
-                      ? subBlock.split("\n•").map((s) => s.trim()).filter(Boolean)
-                      : [];
-                    return (
-                      <>
-                        <p className="mt-1 text-sm text-muted-foreground">{mainDesc}</p>
-                        {subs.length > 0 && (
-                          <div className="mt-3 rounded-xl bg-muted/50 p-3">
-                            <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                              Topics to learn
+                <div className="flex items-start gap-4">
+                  <StatusIcon className={`mt-0.5 h-6 w-6 flex-shrink-0 ${statusConfig.color}`} />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground">
+                        {index + 1}
+                      </span>
+                      <h3 className={`font-semibold ${status === "completed" ? "text-primary line-through" : "text-card-foreground"}`}>
+                        {topic.title}
+                      </h3>
+                      <span className={`ml-auto rounded-full px-2.5 py-0.5 text-xs font-medium ${statusConfig.bg} ${statusConfig.color}`}>
+                        {statusConfig.label}
+                      </span>
+                    </div>
+                    {topic.description && (() => {
+                      const [mainDesc, subBlock] = topic.description.split("\n\nTopics to learn:");
+                      const subs = subBlock
+                        ? subBlock.split("\n•").map((s) => s.trim()).filter(Boolean)
+                        : [];
+                      return (
+                        <>
+                          <p className="mt-1 text-sm text-muted-foreground">{mainDesc}</p>
+                          {subs.length > 0 && (
+                            <div className="mt-3 rounded-xl bg-muted/50 p-3">
+                              <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                                Topics to learn
+                              </div>
+                              <ul className="grid gap-1.5 sm:grid-cols-2">
+                                {subs.map((s, i) => (
+                                  <li key={i} className="flex items-start gap-2 text-sm text-card-foreground">
+                                    <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-primary" />
+                                    <span>{s}</span>
+                                  </li>
+                                ))}
+                              </ul>
                             </div>
-                            <ul className="grid gap-1.5 sm:grid-cols-2">
-                              {subs.map((s, i) => (
-                                <li key={i} className="flex items-start gap-2 text-sm text-card-foreground">
-                                  <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-primary" />
-                                  <span>{s}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-                      </>
-                    );
-                  })()}
-                  <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
-                    <Clock className="h-3 w-3" />
-                    {topic.estimated_hours}h estimated
+                          )}
+                        </>
+                      );
+                    })()}
+                    <div className="mt-3 flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <Clock className="h-3 w-3" />
+                        {topic.estimated_hours}h estimated
+                      </div>
+                      <div className="flex gap-1.5">
+                        {(["not_started", "in_progress", "completed"] as TopicStatus[]).map((s) => (
+                          <button
+                            key={s}
+                            onClick={() => updateTopicStatus(topic.id, s)}
+                            disabled={status === s}
+                            className={`rounded-lg px-2.5 py-1 text-xs font-medium transition-all ${
+                              status === s
+                                ? "bg-primary text-primary-foreground"
+                                : "bg-muted text-muted-foreground hover:bg-muted/70"
+                            }`}
+                          >
+                            {s === "not_started" ? "To do" : s === "in_progress" ? "In progress" : "Done"}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            ))}
+              );
+            })}
             {topics.length === 0 && (
               <div className="rounded-2xl border border-dashed border-border p-12 text-center text-muted-foreground">
                 No topics yet. Complete onboarding to generate your learning path.
