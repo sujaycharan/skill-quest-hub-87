@@ -524,10 +524,11 @@ export function generateTimetable(
         if (dayIndex >= days.length) break;
       }
 
+      const isParentRow = sub === topic.title;
       entries.push({
         day: days[dayIndex],
         timeSlot: formatTimeSlot(baseHour, dayHoursUsed),
-        taskTitle: sub,
+        taskTitle: isParentRow ? topic.title : `${topic.title} — ${sub}`,
         durationHours: subHours,
         topicIndex: ti,
       });
