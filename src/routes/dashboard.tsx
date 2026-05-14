@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
-import { checkBadges } from "@/lib/skillMaps";
+import { careerPaths, checkBadges, type SkillMapTopic } from "@/lib/skillMaps";
 import {
   BookOpen, CheckCircle2, Circle, Calendar,
   Clock, Sparkles, PlayCircle,
@@ -71,6 +71,26 @@ const ChartTooltip = ({ active, payload, label }: any) => {
       ))}
     </div>
   );
+};
+
+const SUBTOPIC_MARKER = "\n\nTopics to learn:";
+
+const normalizeTopicTitle = (value: string) =>
+  value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+
+const parseTopicDescription = (description: string | null) => {
+  const [summary, subBlock] = (description ?? "").split(SUBTOPIC_MARKER);
+  const subtopics = subBlock
+    ? subBlock
+        .split("\n")
+        .map((line) => line.replace(/^•\s*/, "").trim())
+        .filter(Boolean)
+    : [];
+
+  return {
+    summary: summary.trim(),
+    subtopics,
+  };
 };
 
 function DashboardPage() {
@@ -190,47 +210,82 @@ function DashboardPage() {
     if (!user || !profile || topics.length === 0) return;
     setRegenerating(true);
 
-    // Convert DB topics → SkillMapTopic format (parse subtopics from description)
-    const skillTopics = topics.map((t) => {
-      const subBlock = t.description?.split("\n\nTopics to learn:")?.[1] ?? null;
-      const subtopics = subBlock
-        ? subBlock.split("\n•").map((s) => s.trim()).filter(Boolean)
+    try {
+      const fallbackTopics: SkillMapTopic[] = profile.career_goal
+        ? careerPaths[profile.career_goal]?.topics ?? []
         : [];
-      return {
-        title: t.title,
-        description: t.description?.split("\n\nTopics to learn:")?.[0] ?? "",
-        estimatedHours: t.estimated_hours ?? 1,
-        subtopics,
-      };
-    });
-
-    const hoursPerDay = profile.available_hours_per_day ?? 2;
-    const preferredTime = profile.preferred_study_time ?? "Morning";
-
-    const { generateTimetable } = await import("@/lib/skillMaps");
-    const newEntries = generateTimetable(skillTopics, hoursPerDay, preferredTime);
-
-    // Map sort_order → topic DB id
-    const topicIdByIndex: Record<number, string> = {};
-    topics.forEach((t, i) => { topicIdByIndex[i] = t.id; });
-
-    // Replace old entries
-    await supabase.from("timetable_entries").delete().eq("user_id", user.id);
-    if (newEntries.length > 0) {
-      await supabase.from("timetable_entries").insert(
-        newEntries.map((e) => ({
-          user_id: user.id,
-          day_of_week: e.day,
-          time_slot: e.timeSlot,
-          duration_hours: e.durationHours,
-          task_title: e.taskTitle,
-          topic_id: topicIdByIndex[e.topicIndex] ?? null,
-        }))
+      const fallbackByTitle = new Map(
+        fallbackTopics.map((topic) => [normalizeTopicTitle(topic.title), topic])
       );
-    }
 
-    await fetchData();
-    setRegenerating(false);
+      const topicPayload = topics.map((t) => {
+        const parsed = parseTopicDescription(t.description);
+        const fallback = fallbackByTitle.get(normalizeTopicTitle(t.title));
+        const subtopics = parsed.subtopics.length > 0 ? parsed.subtopics : fallback?.subtopics ?? [];
+        const summary = parsed.summary || fallback?.description || "";
+
+        return {
+          dbId: t.id,
+          dbDescription: t.description ?? "",
+          title: t.title,
+          description: summary,
+          estimatedHours: t.estimated_hours ?? fallback?.estimatedHours ?? 1,
+          subtopics,
+        };
+      });
+
+      const topicsNeedingBackfill = topicPayload.filter(
+        (topic) => topic.subtopics.length > 0 && !topic.dbDescription.includes(SUBTOPIC_MARKER)
+      );
+
+      if (topicsNeedingBackfill.length > 0) {
+        const updatePromises = topicsNeedingBackfill.map((topic) =>
+          supabase
+            .from("topics")
+            .update({
+              description: `${topic.description}${SUBTOPIC_MARKER}\n• ${topic.subtopics.join("\n• ")}`,
+            })
+            .eq("id", topic.dbId)
+        );
+
+        const results = await Promise.all(updatePromises);
+        const failedUpdate = results.find((result) => result.error);
+        if (failedUpdate?.error) throw failedUpdate.error;
+      }
+
+      const hoursPerDay = profile.available_hours_per_day ?? 2;
+      const preferredTime = profile.preferred_study_time ?? "Morning";
+
+      const { generateTimetable } = await import("@/lib/skillMaps");
+      const newEntries = generateTimetable(topicPayload, hoursPerDay, preferredTime);
+
+      const topicIdByIndex: Record<number, string> = {};
+      topics.forEach((t, i) => {
+        topicIdByIndex[i] = t.id;
+      });
+
+      const deleteResult = await supabase.from("timetable_entries").delete().eq("user_id", user.id);
+      if (deleteResult.error) throw deleteResult.error;
+
+      if (newEntries.length > 0) {
+        const insertResult = await supabase.from("timetable_entries").insert(
+          newEntries.map((e) => ({
+            user_id: user.id,
+            day_of_week: e.day,
+            time_slot: e.timeSlot,
+            duration_hours: e.durationHours,
+            task_title: e.taskTitle,
+            topic_id: topicIdByIndex[e.topicIndex] ?? null,
+          }))
+        );
+
+        if (insertResult.error) throw insertResult.error;
+      }
+
+      await fetchData();
+    } finally {
+      setRegenerating(false);
+    }
   };
 
   if (authLoading || loading) {
