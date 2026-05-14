@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
-import { careerPaths, checkBadges } from "@/lib/skillMaps";
+import { careerPaths, checkBadges, type SkillMapTopic } from "@/lib/skillMaps";
 import {
   BookOpen, CheckCircle2, Circle, Calendar,
   Clock, Sparkles, PlayCircle,
@@ -211,7 +211,9 @@ function DashboardPage() {
     setRegenerating(true);
 
     try {
-      const fallbackTopics = (profile.career_goal && careerPaths[profile.career_goal]?.topics) ?? [];
+      const fallbackTopics: SkillMapTopic[] = profile.career_goal
+        ? careerPaths[profile.career_goal]?.topics ?? []
+        : [];
       const fallbackByTitle = new Map(
         fallbackTopics.map((topic) => [normalizeTopicTitle(topic.title), topic])
       );
