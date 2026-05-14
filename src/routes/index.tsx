@@ -101,18 +101,6 @@ function HomePage() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="border-t border-border bg-muted/50 py-16">
-        <div className="mx-auto max-w-7xl px-4 text-center">
-          <h2 className="text-2xl font-bold text-foreground sm:text-3xl">Ready to start learning?</h2>
-          <p className="mt-3 text-muted-foreground">Join thousands of learners building real skills.</p>
-          <Link to="/signup" className="mt-8 inline-block">
-            <Button size="lg" className="px-8 py-6 text-base font-semibold">
-              Create Your Path
-            </Button>
-          </Link>
-        </div>
-      </section>
 
       {/* Footer */}
       <footer className="border-t border-border py-8">

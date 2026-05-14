@@ -484,37 +484,58 @@ export async function fetchRecommendation(
   }
 }
 
-// Generate timetable based on topics and user preferences
+function formatTimeSlot(baseHour: number, offsetHours: number): string {
+  const totalMinutes = Math.round((baseHour + offsetHours) * 60);
+  const h = Math.floor(totalMinutes / 60);
+  const m = totalMinutes % 60;
+  const ampm = h < 12 ? "AM" : "PM";
+  const hour12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+  return `${hour12}:${m.toString().padStart(2, "0")} ${ampm}`;
+}
+
+// Generate timetable based on topics and user preferences.
+// Each subtopic gets its own time-slotted entry within the day.
 export function generateTimetable(
   topics: SkillMapTopic[],
   hoursPerDay: number,
   preferredTime: string
 ): Array<{ day: string; timeSlot: string; taskTitle: string; durationHours: number; topicIndex: number }> {
   const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-  const timePrefix = preferredTime === "Morning" ? "9:00 AM" : "6:00 PM";
+  const baseHour = preferredTime === "Morning" ? 9 : 18;
 
   const entries: Array<{ day: string; timeSlot: string; taskTitle: string; durationHours: number; topicIndex: number }> = [];
-  let topicIndex = 0;
-  let remainingHoursForTopic = topics[0]?.estimatedHours ?? 0;
 
-  for (const day of days) {
-    if (topicIndex >= topics.length) break;
+  let dayIndex = 0;
+  let dayHoursUsed = 0;
 
-    let dayHours = hoursPerDay;
-    while (dayHours > 0 && topicIndex < topics.length) {
-      const hours = Math.min(dayHours, remainingHoursForTopic);
+  for (let ti = 0; ti < topics.length; ti++) {
+    if (dayIndex >= days.length) break;
+    const topic = topics[ti];
+    const subs = topic.subtopics && topic.subtopics.length > 0 ? topic.subtopics : [topic.title];
+    const subHours = Math.max(0.5, Math.round((topic.estimatedHours / subs.length) * 2) / 2);
+
+    for (const sub of subs) {
+      if (dayIndex >= days.length) break;
+
+      // Move to next day if this subtopic won't fit
+      if (dayHoursUsed > 0 && dayHoursUsed + subHours > hoursPerDay) {
+        dayIndex++;
+        dayHoursUsed = 0;
+        if (dayIndex >= days.length) break;
+      }
+
       entries.push({
-        day,
-        timeSlot: timePrefix,
-        taskTitle: topics[topicIndex].title,
-        durationHours: hours,
-        topicIndex,
+        day: days[dayIndex],
+        timeSlot: formatTimeSlot(baseHour, dayHoursUsed),
+        taskTitle: sub,
+        durationHours: subHours,
+        topicIndex: ti,
       });
-      dayHours -= hours;
-      remainingHoursForTopic -= hours;
-      if (remainingHoursForTopic <= 0) {
-        topicIndex++;
-        remainingHoursForTopic = topics[topicIndex]?.estimatedHours ?? 0;
+
+      dayHoursUsed += subHours;
+      if (dayHoursUsed >= hoursPerDay) {
+        dayIndex++;
+        dayHoursUsed = 0;
       }
     }
   }

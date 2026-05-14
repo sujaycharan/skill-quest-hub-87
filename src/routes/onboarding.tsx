@@ -122,22 +122,32 @@ function OnboardingPage() {
             };
           });
 
-          const { error: topicsError } = await supabase.from("topics").insert(topicRows);
+          const { data: insertedTopics, error: topicsError } = await supabase
+            .from("topics")
+            .insert(topicRows)
+            .select("id, sort_order");
           if (topicsError) throw topicsError;
-        }
 
-        // Generate timetable entries
-        const { generateTimetable } = await import("@/lib/skillMaps");
-        const timetable = generateTimetable(topicsToLearn, Number(hoursPerDay), preferredTime);
-        if (timetable.length > 0) {
-          const timetableRows = timetable.map((entry) => ({
-            user_id: user.id,
-            day_of_week: entry.day,
-            time_slot: entry.timeSlot,
-            duration_hours: entry.durationHours,
-            task_title: entry.taskTitle,
-          }));
-          await supabase.from("timetable_entries").insert(timetableRows);
+          // Map sort_order index → DB topic id
+          const topicIdByIndex: Record<number, string> = {};
+          for (const t of insertedTopics ?? []) {
+            topicIdByIndex[t.sort_order] = t.id;
+          }
+
+          // Generate timetable entries — one per subtopic with specific time slots
+          const { generateTimetable } = await import("@/lib/skillMaps");
+          const timetable = generateTimetable(topicsToLearn, Number(hoursPerDay), preferredTime);
+          if (timetable.length > 0) {
+            const timetableRows = timetable.map((entry) => ({
+              user_id: user.id,
+              day_of_week: entry.day,
+              time_slot: entry.timeSlot,
+              duration_hours: entry.durationHours,
+              task_title: entry.taskTitle,
+              topic_id: topicIdByIndex[entry.topicIndex] ?? null,
+            }));
+            await supabase.from("timetable_entries").insert(timetableRows);
+          }
         }
       }
 
