@@ -564,9 +564,20 @@ function DashboardPage() {
                           )}
                         </button>
                         <div className="flex-1">
-                          <div className={`text-sm font-medium ${entry.is_completed ? "text-primary line-through" : "text-card-foreground"}`}>
-                            {entry.task_title}
-                          </div>
+                          {(() => {
+                            const [parent, ...rest] = entry.task_title.split(" — ");
+                            const sub = rest.join(" — ");
+                            return (
+                              <>
+                                <div className={`text-sm font-medium ${entry.is_completed ? "text-primary line-through" : "text-card-foreground"}`}>
+                                  {sub || parent}
+                                </div>
+                                {sub && (
+                                  <div className="text-xs text-muted-foreground mt-0.5">{parent}</div>
+                                )}
+                              </>
+                            );
+                          })()}
                         </div>
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                           <Clock className="h-3 w-3" />
