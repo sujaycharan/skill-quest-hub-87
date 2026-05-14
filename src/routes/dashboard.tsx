@@ -545,6 +545,18 @@ function DashboardPage() {
         {/* Timetable Tab */}
         {activeTab === "timetable" && (
           <div className="space-y-4 animate-fade-in">
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                Your weekly study schedule, broken down by subtopic.
+              </p>
+              <button
+                onClick={regenerateTimetable}
+                disabled={regenerating || topics.length === 0}
+                className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
+              >
+                {regenerating ? "Regenerating…" : "Regenerate timetable"}
+              </button>
+            </div>
             {days.map((day) => {
               const dayEntries = timetable.filter((e) => e.day_of_week === day);
               if (dayEntries.length === 0) return null;
