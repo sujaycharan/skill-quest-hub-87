@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
-import { checkBadges } from "@/lib/skillMaps";
+import { careerPaths, checkBadges } from "@/lib/skillMaps";
 import {
   BookOpen, CheckCircle2, Circle, Calendar,
   Clock, Sparkles, PlayCircle,
@@ -71,6 +71,26 @@ const ChartTooltip = ({ active, payload, label }: any) => {
       ))}
     </div>
   );
+};
+
+const SUBTOPIC_MARKER = "\n\nTopics to learn:";
+
+const normalizeTopicTitle = (value: string) =>
+  value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+
+const parseTopicDescription = (description: string | null) => {
+  const [summary, subBlock] = (description ?? "").split(SUBTOPIC_MARKER);
+  const subtopics = subBlock
+    ? subBlock
+        .split("\n")
+        .map((line) => line.replace(/^•\s*/, "").trim())
+        .filter(Boolean)
+    : [];
+
+  return {
+    summary: summary.trim(),
+    subtopics,
+  };
 };
 
 function DashboardPage() {
