@@ -331,7 +331,7 @@ function DashboardPage() {
         {/* Welcome */}
         <div className="mb-8 animate-fade-up">
           <h1 className="text-3xl font-bold text-foreground">
-            Welcome back, {profile?.display_name?.split("@")[0] ?? "Learner"}! 👋
+            Welcome back, {profile?.display_name?.split("@")[0] ?? "Learner"}!&nbsp;
           </h1>
           <p className="mt-1 text-muted-foreground">
             {profile?.career_goal ? `Working towards: ${profile.career_goal}` : "Your learning dashboard"}
