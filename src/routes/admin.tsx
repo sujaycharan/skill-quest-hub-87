@@ -20,7 +20,7 @@ interface UserRow {
   user_id: string;
   display_name: string | null;
   career_goal: string | null;
-  onboarding_completed: boolean;
+  onboarding_completed: boolean | null;
   created_at: string;
   totalTopics: number;
   completedTopics: number;
