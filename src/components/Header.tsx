@@ -1,10 +1,12 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/useAuth";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { Button } from "@/components/ui/button";
-import { BookOpen, LogOut, LayoutDashboard } from "lucide-react";
+import { BookOpen, LogOut, LayoutDashboard, ShieldCheck } from "lucide-react";
 
 export function Header() {
   const { user, loading, signOut } = useAuth();
+  const { isAdmin } = useIsAdmin();
   const location = useLocation();
 
   const isActive = (path: string) => location.pathname === path;
@@ -28,6 +30,14 @@ export function Header() {
                   Dashboard
                 </Button>
               </Link>
+              {isAdmin && (
+                <Link to="/admin">
+                  <Button variant={isActive("/admin") ? "default" : "ghost"} size="sm">
+                    <ShieldCheck className="h-4 w-4" />
+                    Admin
+                  </Button>
+                </Link>
+              )}
               <Button variant="outline" size="sm" onClick={() => signOut()}>
                 <LogOut className="h-4 w-4" />
                 Sign Out
