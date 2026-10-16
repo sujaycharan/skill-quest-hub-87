@@ -30,6 +30,14 @@ export function Header() {
                   Dashboard
                 </Button>
               </Link>
+              {isAdmin && (
+                <Link to="/admin">
+                  <Button variant={isActive("/admin") ? "default" : "ghost"} size="sm">
+                    <ShieldCheck className="h-4 w-4" />
+                    Admin
+                  </Button>
+                </Link>
+              )}
               <Button variant="outline" size="sm" onClick={() => signOut()}>
                 <LogOut className="h-4 w-4" />
                 Sign Out
